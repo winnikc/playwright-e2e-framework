@@ -1,0 +1,247 @@
+# GitLab CI/CD Pipeline Configuration
+# Supports: all tests, tagged tests, nightly regression, MR triggers, environment switching
+
+# ============================================
+# GLOBAL CONFIGURATION
+# ============================================
+
+# TODO: Replace with your custom Docker image
+image: mcr.microsoft.com/playwright:v1.40.0-jammy
+
+# Pipeline stages
+stages:
+  - install
+  - test
+  - report
+
+# Global variables (can be overridden per job or via GitLab UI)
+variables:
+  # Default test environment
+  TEST_ENV: "qa"
+  # Default data format
+  DATA_FORMAT: "json"
+  # Squash TM reporting (disabled by default)
+  REPORT_TO_SQUASH: "false"
+  # Node options
+  NODE_OPTIONS: "--max-old-space-size=4096"
+
+# Cache node_modules between jobs
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+    - ~/.cache/ms-playwright/
+
+# ============================================
+# INSTALL STAGE
+# ============================================
+
+install:
+  stage: install
+  script:
+    - npm ci
+    - npx playwright install --with-deps chromium
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1 day
+
+# ============================================
+# TEST JOBS
+# ============================================
+
+# Job 1: Run ALL tests
+test:all:
+  stage: test
+  needs: [install]
+  script:
+    - echo "Running all tests on $TEST_ENV environment"
+    - npm run test
+  artifacts:
+    when: always
+    paths:
+      - playwright-report/
+      - reports/
+      - test-results/
+    expire_in: 7 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
+    - if: $CI_PIPELINE_SOURCE == "api"
+      when: manual
+
+# Job 2: Run tests by TAGS
+# Usage: Set TEST_TAGS variable, e.g., "@smoke" or "@regression and @login"
+test:tagged:
+  stage: test
+  needs: [install]
+  script:
+    - echo "Running tests with tags: $TEST_TAGS"
+    - npm run test -- --grep "$TEST_TAGS"
+  artifacts:
+    when: always
+    paths:
+      - playwright-report/
+      - reports/
+      - test-results/
+    expire_in: 7 days
+  rules:
+    - if: $TEST_TAGS
+      when: always
+
+# Job 3: Smoke tests
+test:smoke:
+  stage: test
+  needs: [install]
+  script:
+    - echo "Running smoke tests on $TEST_ENV environment"
+    - npm run test:smoke
+  artifacts:
+    when: always
+    paths:
+      - playwright-report/
+      - reports/
+      - test-results/
+    expire_in: 7 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
+
+# Job 4: Nightly regression tests (scheduled pipeline)
+test:nightly:
+  stage: test
+  needs: [install]
+  variables:
+    REPORT_TO_SQUASH: "true"  # Enable Squash TM reporting for nightly
+  script:
+    - echo "Running nightly regression tests"
+    - npm run test:regression
+  artifacts:
+    when: always
+    paths:
+      - playwright-report/
+      - reports/
+      - test-results/
+    expire_in: 30 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: always
+  after_script:
+    - npm run report:send || echo "Email report failed"
+
+# Job 5: Merge Request tests (smoke only for MRs)
+test:mr:
+  stage: test
+  needs: [install]
+  script:
+    - echo "Running MR validation tests"
+    - npm run test:smoke
+  artifacts:
+    when: always
+    paths:
+      - playwright-report/
+      - reports/
+    expire_in: 3 days
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      when: always
+
+# ============================================
+# ENVIRONMENT-SPECIFIC JOBS
+# ============================================
+
+test:dev:
+  stage: test
+  needs: [install]
+  variables:
+    TEST_ENV: "dev"
+  script:
+    - echo "Running tests on DEV environment"
+    - npm run test:env:dev
+  artifacts:
+    when: always
+    paths:
+      - playwright-report/
+      - reports/
+    expire_in: 7 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
+
+test:qa:
+  stage: test
+  needs: [install]
+  variables:
+    TEST_ENV: "qa"
+  script:
+    - echo "Running tests on QA environment"
+    - npm run test:env:qa
+  artifacts:
+    when: always
+    paths:
+      - playwright-report/
+      - reports/
+    expire_in: 7 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
+
+test:uat:
+  stage: test
+  needs: [install]
+  variables:
+    TEST_ENV: "uat"
+  script:
+    - echo "Running tests on UAT environment"
+    - npm run test:env:uat
+  artifacts:
+    when: always
+    paths:
+      - playwright-report/
+      - reports/
+    expire_in: 7 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
+
+# ============================================
+# REPORT STAGE
+# ============================================
+
+# Send email report after test completion
+send:report:
+  stage: report
+  needs:
+    - job: test:all
+      optional: true
+    - job: test:nightly
+      optional: true
+  script:
+    - npm run report:send
+  rules:
+    - if: $SEND_EMAIL_REPORT == "true"
+      when: always
+  allow_failure: true
+
+# ============================================
+# PAGES (for GitLab Pages - optional)
+# ============================================
+
+pages:
+  stage: report
+  needs:
+    - job: test:all
+      optional: true
+    - job: test:nightly
+      optional: true
+  script:
+    - mkdir -p public
+    - cp -r playwright-report/* public/ || echo "No report to publish"
+  artifacts:
+    paths:
+      - public
+    expire_in: 7 days
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: always
+  allow_failure: true

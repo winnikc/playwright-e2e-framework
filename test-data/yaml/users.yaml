@@ -1,0 +1,129 @@
+# Test Data: Users
+# YAML format for test data - same structure as JSON version
+
+validUsers:
+  - id: TC-001
+    name: Login with standard user
+    username: standard_user
+    password: secret_sauce
+    expectedResult: success
+    description: Standard user should be able to login successfully
+    tags:
+      - smoke
+      - regression
+      - login
+    squashId: CAMP-4-TC-101
+
+  - id: TC-002
+    name: Login with performance glitch user
+    username: performance_glitch_user
+    password: secret_sauce
+    expectedResult: success
+    description: Performance glitch user should login (with delay)
+    tags:
+      - regression
+      - login
+      - performance
+    squashId: CAMP-4-TC-102
+
+  - id: TC-003
+    name: Login with problem user
+    username: problem_user
+    password: secret_sauce
+    expectedResult: success
+    description: Problem user should be able to login
+    tags:
+      - regression
+      - login
+    squashId: CAMP-4-TC-103
+
+  - id: TC-004
+    name: Login with error user
+    username: error_user
+    password: secret_sauce
+    expectedResult: success
+    description: Error user should be able to login
+    tags:
+      - regression
+      - login
+    squashId: CAMP-4-TC-104
+
+  - id: TC-005
+    name: Login with visual user
+    username: visual_user
+    password: secret_sauce
+    expectedResult: success
+    description: Visual user should be able to login
+    tags:
+      - regression
+      - login
+      - visual
+    squashId: CAMP-4-TC-105
+
+lockedUsers:
+  - id: TC-006
+    name: Login with locked out user
+    username: locked_out_user
+    password: secret_sauce
+    expectedResult: locked
+    expectedError: Sorry, this user has been locked out
+    description: Locked out user should see error message
+    tags:
+      - smoke
+      - regression
+      - login
+      - negative
+    squashId: CAMP-4-TC-106
+
+invalidCredentials:
+  - id: TC-007
+    name: Login with invalid username
+    username: invalid_user
+    password: secret_sauce
+    expectedResult: error
+    expectedError: Username and password do not match
+    description: Invalid username should show error
+    tags:
+      - regression
+      - login
+      - negative
+    squashId: CAMP-4-TC-107
+
+  - id: TC-008
+    name: Login with invalid password
+    username: standard_user
+    password: wrong_password
+    expectedResult: error
+    expectedError: Username and password do not match
+    description: Invalid password should show error
+    tags:
+      - regression
+      - login
+      - negative
+    squashId: CAMP-4-TC-108
+
+  - id: TC-009
+    name: Login with empty credentials
+    username: ""
+    password: ""
+    expectedResult: error
+    expectedError: Username is required
+    description: Empty credentials should show error
+    tags:
+      - regression
+      - login
+      - negative
+    squashId: CAMP-4-TC-109
+
+  - id: TC-010
+    name: Login with empty password
+    username: standard_user
+    password: ""
+    expectedResult: error
+    expectedError: Password is required
+    description: Empty password should show error
+    tags:
+      - regression
+      - login
+      - negative
+    squashId: CAMP-4-TC-110

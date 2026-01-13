@@ -1,0 +1,59 @@
+{
+    "name": "playwright-e2e-framework",
+    "version": "1.0.0",
+    "description": "E2E Test Automation Framework with Playwright, TypeScript, POM, and DDT",
+    "main": "index.js",
+    "scripts": {
+        "test": "npx playwright test",
+        "test:headed": "npx playwright test --headed",
+        "test:ui": "npx playwright test --ui",
+        "test:smoke": "npx playwright test --grep @smoke",
+        "test:regression": "npx playwright test --grep @regression",
+        "test:critical": "npx playwright test --grep @critical",
+        "test:env:dev": "cross-env TEST_ENV=dev npx playwright test",
+        "test:env:qa": "cross-env TEST_ENV=qa npx playwright test",
+        "test:env:uat": "cross-env TEST_ENV=uat npx playwright test",
+        "test:debug": "npx playwright test --debug",
+        "report:show": "npx playwright show-report",
+        "report:send": "ts-node src/utils/sendEmailReport.ts",
+        "lint": "eslint . --ext .ts",
+        "lint:fix": "eslint . --ext .ts --fix",
+        "format": "prettier --write \"**/*.{ts,json,md}\"",
+        "format:check": "prettier --check \"**/*.{ts,json,md}\"",
+        "build": "tsc --noEmit",
+        "clean": "rimraf test-results playwright-report reports"
+    },
+    "keywords": [
+        "playwright",
+        "typescript",
+        "e2e",
+        "testing",
+        "automation",
+        "pom",
+        "ddt"
+    ],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@playwright/test": "^1.40.0",
+        "@types/node": "^20.10.0",
+        "@typescript-eslint/eslint-plugin": "^6.13.0",
+        "@typescript-eslint/parser": "^6.13.0",
+        "cross-env": "^7.0.3",
+        "eslint": "^8.55.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-playwright": "^0.20.0",
+        "prettier": "^3.1.0",
+        "rimraf": "^5.0.5",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.3.2"
+    },
+    "dependencies": {
+        "axios": "^1.6.2",
+        "chalk": "^4.1.2",
+        "dotenv": "^16.3.1",
+        "nodemailer": "^6.9.7",
+        "winston": "^3.11.0",
+        "yaml": "^2.3.4"
+    }
+}

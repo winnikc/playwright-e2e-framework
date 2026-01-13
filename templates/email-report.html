@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Test Execution Report</title>
+  <style>
+    /* 
+     * Email Report Template
+     * Customize this template to match your organization's branding
+     * Placeholders use {{PLACEHOLDER_NAME}} format
+     */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, {{STATUS_COLOR}} 0%, {{STATUS_COLOR}}dd 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+    }
+    .header .subtitle {
+      margin: 10px 0 0 0;
+      opacity: 0.9;
+      font-size: 16px;
+    }
+    .content {
+      padding: 25px;
+    }
+    .section-title {
+      color: #333;
+      border-bottom: 3px solid #eee;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+    .stats-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    .stat-card {
+      flex: 1;
+      min-width: 140px;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+    .stat-card .number {
+      font-size: 36px;
+      font-weight: bold;
+      line-height: 1;
+    }
+    .stat-card .label {
+      color: #666;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    .stat-total { background: #f8f9fa; }
+    .stat-total .number { color: #333; }
+    .stat-passed { background: #d4edda; }
+    .stat-passed .number { color: #28a745; }
+    .stat-failed { background: #f8d7da; }
+    .stat-failed .number { color: #dc3545; }
+    .stat-skipped { background: #fff3cd; }
+    .stat-skipped .number { color: #856404; }
+    
+    .info-box {
+      background: #e9ecef;
+      border-radius: 8px;
+      padding: 15px 20px;
+      margin-bottom: 25px;
+    }
+    .info-box p {
+      margin: 8px 0;
+      color: #495057;
+    }
+    .info-box strong {
+      color: #333;
+      min-width: 100px;
+      display: inline-block;
+    }
+    
+    .progress-bar {
+      background: #e9ecef;
+      border-radius: 10px;
+      height: 20px;
+      overflow: hidden;
+      margin: 15px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+      transition: width 0.5s ease;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th {
+      background-color: #f8f9fa;
+      padding: 12px;
+      text-align: left;
+      border-bottom: 2px solid #dee2e6;
+      font-weight: 600;
+      color: #333;
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #eee;
+      color: #555;
+    }
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+    .status-passed { color: #28a745; font-weight: bold; }
+    .status-failed { color: #dc3545; font-weight: bold; }
+    .status-skipped { color: #856404; font-weight: bold; }
+    
+    .footer {
+      background-color: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      color: #666;
+      border-top: 1px solid #eee;
+    }
+    .footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>{{STATUS_EMOJI}} {{PROJECT_NAME}}</h1>
+      <p class="subtitle">Test Execution Report | Environment: {{ENVIRONMENT}}</p>
+    </div>
+    
+    <!-- Summary Section -->
+    <div class="content">
+      <h2 class="section-title">📊 Execution Summary</h2>
+      
+      <div class="stats-grid">
+        <div class="stat-card stat-total">
+          <div class="number">{{TOTAL_TESTS}}</div>
+          <div class="label">Total Tests</div>
+        </div>
+        <div class="stat-card stat-passed">
+          <div class="number">{{PASSED}}</div>
+          <div class="label">Passed</div>
+        </div>
+        <div class="stat-card stat-failed">
+          <div class="number">{{FAILED}}</div>
+          <div class="label">Failed</div>
+        </div>
+        <div class="stat-card stat-skipped">
+          <div class="number">{{SKIPPED}}</div>
+          <div class="label">Skipped</div>
+        </div>
+      </div>
+      
+      <!-- Progress Bar -->
+      <div style="margin-bottom: 25px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+          <span style="color: #28a745; font-weight: bold;">Pass Rate</span>
+          <span style="font-weight: bold;">{{PASS_RATE}}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: {{PASS_RATE}}%;"></div>
+        </div>
+      </div>
+      
+      <!-- Execution Details -->
+      <div class="info-box">
+        <p><strong>⏱️ Duration:</strong> {{DURATION}}</p>
+        <p><strong>🚀 Started:</strong> {{START_TIME}}</p>
+        <p><strong>🏁 Ended:</strong> {{END_TIME}}</p>
+        <p><strong>🌐 Browser:</strong> {{BROWSER_NAME}}</p>
+      </div>
+      
+      <!-- Test Results Table -->
+      <h2 class="section-title">📝 Test Results</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 50%;">Test Name</th>
+            <th style="width: 15%; text-align: center;">Status</th>
+            <th style="width: 15%; text-align: center;">Duration</th>
+            <th style="width: 20%;">Error</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{TEST_RESULTS_ROWS}}
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      <p>📧 Report generated by <strong>Playwright E2E Framework</strong></p>
+      <p><a href="{{BUILD_URL}}">View Full HTML Report</a> | <a href="{{BUILD_URL}}/trace">View Trace</a></p>
+      <p style="font-size: 12px; color: #999; margin-top: 15px;">
+        This is an automated message. Please do not reply directly to this email.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

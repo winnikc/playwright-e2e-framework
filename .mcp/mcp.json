@@ -1,0 +1,23 @@
+{
+    "mcpServers": {
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@anthropic/playwright-mcp-server"
+            ],
+            "env": {
+                "PLAYWRIGHT_HEADLESS": "true"
+            }
+        },
+        "code-review": {
+            "command": "node",
+            "args": [
+                ".mcp/code-review-agent/server.js"
+            ],
+            "env": {
+                "GEMINI_API_KEY": "${GEMINI_API_KEY}"
+            }
+        }
+    }
+}
